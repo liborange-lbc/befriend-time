@@ -1,0 +1,12 @@
+{
+  "logs": [
+    {
+      "region": "CN",
+      "timestamp": "2026-04-17T10:21:10.306089Z",
+      "status": "failed",
+      "indicesUpdated": 0,
+      "message": "Failed indices: H20269",
+      "retryCount": null
+    }
+  ]
+}
