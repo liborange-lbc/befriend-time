@@ -9,6 +9,7 @@ import json
 import argparse
 from datetime import datetime, timedelta
 from pathlib import Path
+import time
 
 import pandas as pd
 import yfinance as yf
@@ -22,6 +23,10 @@ UPDATE_LOG_FILE = STATUS_DIR / 'update-log.json'
 
 # SMA periods
 SMA_PERIODS = [30, 60, 90, 180, 240, 360]
+
+# Retry settings
+MAX_RETRIES = 5
+RETRY_DELAY = 10
 
 
 def load_indices():
@@ -62,7 +67,13 @@ def process_stock_data(df, code):
     if df.empty:
         return {'data': []}
 
-    df = df.sort_values('Date')
+    # Reset index to make 'Date' a column
+    df = df.reset_index()
+
+    # Check columns
+    date_col = 'Date' if 'Date' in df.columns else 'Datetime'
+
+    df = df.sort_values(date_col)
     close_prices = df['Close'].tolist()
 
     # Calculate SMAs
@@ -73,8 +84,14 @@ def process_stock_data(df, code):
     # Build result
     result = []
     for i, row in df.iterrows():
+        date_val = row[date_col]
+        if hasattr(date_val, 'strftime'):
+            date_str = date_val.strftime('%Y-%m-%d')
+        else:
+            date_str = str(date_val)[:10]
+
         data_point = {
-            'date': row['Date'].strftime('%Y-%m-%d'),
+            'date': date_str,
             'close': round(row['Close'], 2),
         }
 
@@ -88,11 +105,45 @@ def process_stock_data(df, code):
     return {'code': code, 'data': result}
 
 
-def fetch_yahoo_data(code, start_date, end_date):
-    """Fetch data from Yahoo Finance."""
+def fetch_yahoo_data(code, start_date, end_date, retry_count=0):
+    """Fetch data from Yahoo Finance with retry using direct download."""
+    import requests
+
     try:
-        ticker = yf.Ticker(code)
-        df = ticker.history(start=start_date, end=end_date)
+        # Convert dates to Unix timestamps
+        start_ts = int(datetime.strptime(start_date, '%Y-%m-%d').timestamp())
+        end_ts = int(datetime.strptime(end_date, '%Y-%m-%d').timestamp())
+
+        url = f"https://query1.finance.yahoo.com/v7/finance/download/{code}"
+        params = {
+            'period1': start_ts,
+            'period2': end_ts,
+            'interval': '1d',
+            'events': 'history',
+            'includeAdjustedClose': 'true'
+        }
+
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
+        }
+
+        response = requests.get(url, params=params, headers=headers, timeout=30)
+
+        if response.status_code == 429:
+            print(f"Rate limited for {code}, retrying...")
+            if retry_count < MAX_RETRIES:
+                wait_time = RETRY_DELAY * (retry_count + 1)
+                print(f"Waiting {wait_time}s... ({retry_count + 1}/{MAX_RETRIES})")
+                time.sleep(wait_time)
+                return fetch_yahoo_data(code, start_date, end_date, retry_count + 1)
+            return None
+
+        if response.status_code != 200:
+            print(f"Error fetching {code}: HTTP {response.status_code}")
+            return None
+
+        from io import StringIO
+        df = pd.read_csv(StringIO(response.text))
 
         if df.empty:
             return None
@@ -100,6 +151,11 @@ def fetch_yahoo_data(code, start_date, end_date):
         return df
     except Exception as e:
         print(f"Error fetching {code}: {e}")
+        if retry_count < MAX_RETRIES:
+            wait_time = RETRY_DELAY * (retry_count + 1)
+            print(f"Retrying in {wait_time}s... ({retry_count + 1}/{MAX_RETRIES})")
+            time.sleep(wait_time)
+            return fetch_yahoo_data(code, start_date, end_date, retry_count + 1)
         return None
 
 
@@ -148,7 +204,7 @@ def update_log(status, indices_updated, message):
 
     log_entry = {
         'region': 'US',
-        'timestamp': datetime.utcnow().isoformat() + 'Z',
+        'timestamp': datetime.now().isoformat() + 'Z',
         'status': status,
         'indicesUpdated': indices_updated,
         'message': message
@@ -204,6 +260,9 @@ def main():
         name = idx.get('name', code)
 
         print(f"Processing {name} ({code})")
+
+        # Add delay between requests to avoid rate limiting
+        time.sleep(2)
 
         df = fetch_yahoo_data(code, start_date, end_date)
 
