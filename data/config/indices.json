@@ -1,0 +1,36 @@
+{
+  "indices": [
+    {
+      "id": "idx-QQQ",
+      "name": "纳斯达克",
+      "code": "QQQ",
+      "region": "US",
+      "createdAt": "2026-04-17",
+      "updatedAt": "2026-04-17"
+    },
+    {
+      "id": "idx-SPY",
+      "name": "标普500",
+      "code": "SPY",
+      "region": "US",
+      "createdAt": "2026-04-17",
+      "updatedAt": "2026-04-17"
+    },
+    {
+      "id": "idx-H20269",
+      "name": "中证红利低波全收益",
+      "code": "H20269",
+      "region": "CN",
+      "createdAt": "2026-04-17",
+      "updatedAt": "2026-04-17"
+    },
+    {
+      "id": "idx-932596HKD310",
+      "name": "港股通红利低波全收益",
+      "code": "932596HKD310",
+      "region": "HK",
+      "createdAt": "2026-04-17",
+      "updatedAt": "2026-04-17"
+    }
+  ]
+}
