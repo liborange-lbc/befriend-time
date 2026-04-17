@@ -7,6 +7,14 @@
       "indicesUpdated": 0,
       "message": "Failed indices: H20269",
       "retryCount": null
+    },
+    {
+      "region": "HK",
+      "timestamp": "2026-04-17T10:22:31.650528Z",
+      "status": "failed",
+      "indicesUpdated": 0,
+      "message": "Failed indices: 932596HKD310",
+      "retryCount": null
     }
   ]
 }
