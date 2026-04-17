@@ -1,14 +1,18 @@
-name: Fetch US Stock Data
+name: Fetch Stock Data
 
 on:
   schedule:
-    - cron: '0 22 * * *'  # 北京时间 06:00 = UTC 22:00 (previous day)
+    - cron: '0 9 * * *'  # 北京时间 17:00 = UTC 9:00
   workflow_dispatch:
     inputs:
       init:
         description: 'Initial full fetch'
         required: false
         default: 'false'
+      source:
+        description: 'Data source (all/csindex/yfinance/tushare)'
+        required: false
+        default: 'all'
 
 jobs:
   fetch-data:
@@ -28,16 +32,18 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install pandas yfinance requests
+          pip install pandas requests yfinance tushare
 
-      - name: Run US stock data fetch
+      - name: Run stock data fetch
+        env:
+          TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
         run: |
-          python scripts/fetch_us_data.py --init ${{ github.event.inputs.init }}
+          python scripts/fetch_data.py --source ${{ github.event.inputs.source }} --init ${{ github.event.inputs.init }}
 
       - name: Commit and Push
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add data/
-          git diff --staged --quiet || git commit -m "chore: update US stock data"
+          git diff --staged --quiet || git commit -m "chore: update stock data"
           git push

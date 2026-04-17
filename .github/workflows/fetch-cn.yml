@@ -1,4 +1,4 @@
-name: Fetch A-Share Data
+name: Fetch A-Share Data (csindex)
 
 on:
   schedule:
@@ -28,18 +28,16 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install pandas tushare requests
+          pip install pandas requests
 
-      - name: Run A-Share data fetch
-        env:
-          TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
+      - name: Run A-Share data fetch (csindex)
         run: |
-          python scripts/fetch_data.py --region CN --init ${{ github.event.inputs.init }}
+          python scripts/fetch_data.py --source csindex --init ${{ github.event.inputs.init }}
 
       - name: Commit and Push
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add data/
-          git diff --staged --quiet || git commit -m "chore: update A-share data"
+          git diff --staged --quiet || git commit -m "chore: update A-share data (csindex)"
           git push

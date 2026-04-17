@@ -1,4 +1,4 @@
-name: Fetch HK Stock Data
+name: Fetch Stock Data
 
 on:
   schedule:
@@ -28,18 +28,18 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install pandas tushare requests
+          pip install pandas requests tushare
 
-      - name: Run HK stock data fetch
+      - name: Run stock data fetch (tushare)
         env:
           TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
         run: |
-          python scripts/fetch_data.py --region HK --init ${{ github.event.inputs.init }}
+          python scripts/fetch_data.py --source tushare --init ${{ github.event.inputs.init }}
 
       - name: Commit and Push
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add data/
-          git diff --staged --quiet || git commit -m "chore: update HK stock data"
+          git diff --staged --quiet || git commit -m "chore: update stock data (tushare)"
           git push

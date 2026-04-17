@@ -1,12 +1,14 @@
 // 指数相关类型定义
 
 export type Region = 'CN' | 'HK' | 'US'
+export type DataSource = 'tushare' | 'csindex' | 'yfinance'
 
 export interface Index {
   id: string
   name: string
   code: string
   region: Region
+  source?: DataSource
   createdAt: string
   updatedAt: string
 }
