@@ -32,7 +32,7 @@ export function useDataFetch() {
     error.value = null
 
     try {
-      const response = await fetch(`/data/indices/${code}-${year}.json`)
+      const response = await fetch(`./data/indices/${code}-${year}.json`)
 
       if (!response.ok) {
         // 文件不存在，返回空数组

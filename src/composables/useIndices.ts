@@ -11,7 +11,8 @@ export function useIndices() {
     loading.value = true
     error.value = null
     try {
-      const response = await fetch('/data/config/indices.json')
+      // public/data/config/indices.json -> /data/config/indices.json (dev) or data/config/indices.json (prod)
+      const response = await fetch('./data/config/indices.json')
       if (!response.ok) {
         indices.value = []
         return
