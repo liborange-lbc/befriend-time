@@ -36,6 +36,13 @@
       "status": "failed",
       "indicesUpdated": 0,
       "message": "Failed: QQQ, SPY"
+    },
+    {
+      "source": "csindex",
+      "timestamp": "2026-04-17T15:45:31.747047Z",
+      "status": "failed",
+      "indicesUpdated": 0,
+      "message": "Failed: 000300, H20269, 932596HKD310"
     }
   ]
 }
