@@ -1,0 +1,35 @@
+name: Fetch US Stock Data
+
+on:
+  schedule:
+    - cron: '0 22 * * *'  # 北京时间 06:00 = UTC 22:00 (previous day)
+  workflow_dispatch:
+    inputs:
+      init:
+        description: 'Initial full fetch'
+        required: false
+        default: 'false'
+
+jobs:
+  fetch-data:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install pandas yfinance requests
+
+      - name: Run US stock data fetch
+        run: |
+          python scripts/fetch_us_data.py --init ${{ github.event.inputs.init }}
+
+      - name: Commit data changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update US stock data"

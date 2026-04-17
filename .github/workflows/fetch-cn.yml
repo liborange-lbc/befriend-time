@@ -1,0 +1,37 @@
+name: Fetch A-Share Data
+
+on:
+  schedule:
+    - cron: '0 9 * * *'  # 北京时间 17:00 = UTC 9:00
+  workflow_dispatch:
+    inputs:
+      init:
+        description: 'Initial full fetch'
+        required: false
+        default: 'false'
+
+jobs:
+  fetch-data:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install pandas tushare requests
+
+      - name: Run A-Share data fetch
+        env:
+          TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
+        run: |
+          python scripts/fetch_data.py --region CN --init ${{ github.event.inputs.init }}
+
+      - name: Commit data changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update A-share data"
