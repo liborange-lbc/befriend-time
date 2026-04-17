@@ -15,6 +15,27 @@
       "indicesUpdated": 0,
       "message": "Failed indices: 932596HKD310",
       "retryCount": null
+    },
+    {
+      "region": "US",
+      "timestamp": "2026-04-17T10:26:25.892986Z",
+      "status": "failed",
+      "indicesUpdated": 0,
+      "message": "Failed: QQQ, SPY"
+    },
+    {
+      "region": "US",
+      "timestamp": "2026-04-17T18:28:02.010129Z",
+      "status": "failed",
+      "indicesUpdated": 0,
+      "message": "Failed: QQQ, SPY"
+    },
+    {
+      "region": "US",
+      "timestamp": "2026-04-17T18:29:57.697867Z",
+      "status": "failed",
+      "indicesUpdated": 0,
+      "message": "Failed: QQQ, SPY"
     }
   ]
 }
